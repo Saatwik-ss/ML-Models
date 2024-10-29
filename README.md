@@ -25,5 +25,5 @@ Feature Coefficients: Visualizes model coefficients to show each feature’s imp
 Confusion Matrix Visualization: Displays a matrix to show counts of true positives, true negatives, false positives, and false negatives.
 6. ROC Curve
 Receiver Operating Characteristic (ROC) Curve: Plots the ROC curve to assess the model's true positive and false positive rates across thresholds.
-7. PREDICTION
+7. PREDICTION:
 The user can input data in the same format as of the dataset the model is trained with and a target prediction would be made and the accuracy, precison, recall, f1_score and roc curve of the prediction will help the user in understanding the reliability of the prediction
