@@ -1,39 +1,14 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import sys
-import os
 
-def load_dataset():
-    if len(sys.argv) > 1:
-        file_path = sys.argv[1]
-    else:
-        file_path = input("Please enter the path to your CSV file: ")
+df = pd.read_csv("Dataset_nnweek4.csv")
 
-    if not os.path.exists(file_path):
-        print("Error: File not found. Please check the path and try again.")
-        sys.exit(1)
-
-    try:
-        df = pd.read_csv(file_path)
-        print("Dataset loaded successfully.")
-    except Exception as e:
-        print(f"Error loading dataset: {e}")
-        sys.exit(1)
-    
-    return df
-
-df = load_dataset()
-
-if 'target' not in df.columns:
-    print("Error: The dataset must contain a 'target' column for the labels.")
-    sys.exit(1)
-
-# Plot feature distributions
 df.hist(bins=20, figsize=(15, 10))
 plt.suptitle('Feature Distributions')
 plt.show()
 
+# Step 2: Correlation heatmap
 def correlationheatmap(data):
     correlation = data.corr()
     fig, ax = plt.subplots(figsize=(12, 8))
@@ -43,11 +18,14 @@ def correlationheatmap(data):
     fig.colorbar(cax)
     plt.title('Correlation Heatmap', pad=20)
     plt.show()
+
 correlationheatmap(df)
 
+# Step 3: Prepare data
 X = df.drop('target', axis=1).values
 y = df['target'].values
 
+# Step 4: Standardize
 X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
 X = np.hstack((np.ones((X.shape[0], 1)), X))
 
@@ -56,7 +34,8 @@ def sigmoid(z):
 
 def compute_loss(y, y_hat):
     return -np.mean(y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
-    
+
+# Step 5: Gradient descent
 def gradient_descent(X, y, weights, learning_rate, num_iterations):
     m = len(y)
     for i in range(num_iterations):
@@ -73,6 +52,8 @@ np.random.seed(50)
 weights = np.random.rand(X.shape[1])
 learning_rate = 0.01
 num_iterations = 100000
+
+# Step 6: Prediction
 weights = gradient_descent(X, y, weights, learning_rate, num_iterations)
 
 def predict(X, weights):
@@ -81,6 +62,7 @@ def predict(X, weights):
 
 y_pred = predict(X, weights)
 
+# Step 7: Evaluation metrics
 def accuracy(y_true, y_pred):
     return np.mean(y_true == y_pred)
 
@@ -99,21 +81,23 @@ def f1_score(y_true, y_pred):
     rec = recall(y_true, y_pred)
     return 2 * (prec * rec) / (prec + rec) if (prec + rec) != 0 else 0
 
-# Print evaluation metrics
 print(f"Accuracy: {accuracy(y, y_pred)}")
 print(f"Precision: {precision(y, y_pred)}")
 print(f"Recall: {recall(y, y_pred)}")
 print(f"F1-Score: {f1_score(y, y_pred)}")
 
+# Plot feature coefficients
 feature_names = ['Intercept'] + list(df.drop('target', axis=1).columns)
 coefficients = weights
+
 plt.figure(figsize=(10, 6))
 plt.barh(feature_names, coefficients, color='blue')
-plt.title("Feature Coefficients (Effect on Prediction)")
+plt.title("Feature Coefficients (Effect on Heart Disease Prediction)")
 plt.xlabel("Coefficient Value")
 plt.ylabel("Feature")
 plt.show()
 
+# Confusion matrix plot
 def plot_confusion_matrix(y_true, y_pred):
     cm = np.zeros((2, 2))
     cm[0, 0] = np.sum((y_true == 0) & (y_pred == 0))  # True negatives
@@ -135,6 +119,7 @@ def plot_confusion_matrix(y_true, y_pred):
 
 plot_confusion_matrix(y, y_pred)
 
+# ROC curve plot
 def plot_roc_curve(X, y, weights):
     z = np.dot(X, weights)
     y_hat = sigmoid(z)
@@ -161,4 +146,18 @@ def plot_roc_curve(X, y, weights):
 
 plot_roc_curve(X, y, weights)
 
+def predict_user_input():
+    print("\nPlease enter values for the following features:")
+    user_data = []
+    for feature in df.drop('target', axis=1).columns:
+        value = float(input(f"{feature}: "))
+        user_data.append(value)
 
+    user_data = (np.array(user_data) - np.mean(X[:, 1:], axis=0)) / np.std(X[:, 1:], axis=0)
+    user_data = np.insert(user_data, 0, 1)  # Add intercept term
+
+    prediction = predict(user_data.reshape(1, -1), weights)
+    print("Predicted target:", int(prediction[0]))
+if __name__ == "__main__":
+    predict_user_input()
+print(f"NOTE: THIS PREDICTION HAS AN ACCURACY OF {accuracy(y, y_pred)*100}%")
