@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import os
+
 def load_dataset():
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
@@ -19,7 +20,7 @@ def load_dataset():
     except Exception as e:
         print(f"Error loading dataset: {e}")
         sys.exit(1)
-    
+
     return df
 
 df = load_dataset()
@@ -48,15 +49,16 @@ correlationheatmap(df)
 X = df.drop('target', axis=1).values
 y = df['target'].values
 
+# Normalize features
 X = (X - np.mean(X, axis=0)) / np.std(X, axis=0)
-X = np.hstack((np.ones((X.shape[0], 1)), X))
+X = np.hstack((np.ones((X.shape[0], 1)), X))  # Add intercept term
 
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
 
 def compute_loss(y, y_hat):
-    return -np.mean(y * np.log(y_hat) + (1 - y) * np.log(1 - y_hat))
-    
+    return -np.mean(y * np.log(y_hat + 1e-15) + (1 - y) * np.log(1 - y_hat + 1e-15))  # Added small value to avoid log(0)
+
 def gradient_descent(X, y, weights, learning_rate, num_iterations):
     m = len(y)
     for i in range(num_iterations):
@@ -66,7 +68,7 @@ def gradient_descent(X, y, weights, learning_rate, num_iterations):
         weights -= learning_rate * gradients
         if i % 1000 == 0:
             loss = compute_loss(y, y_hat)
-            print(f"Iteration {i}, Loss: {loss}")
+            print(f"Iteration {i}, Loss: {loss:.4f}")
     return weights
 
 np.random.seed(50)
@@ -100,10 +102,10 @@ def f1_score(y_true, y_pred):
     return 2 * (prec * rec) / (prec + rec) if (prec + rec) != 0 else 0
 
 # Print evaluation metrics
-print(f"Accuracy: {accuracy(y, y_pred)}")
-print(f"Precision: {precision(y, y_pred)}")
-print(f"Recall: {recall(y, y_pred)}")
-print(f"F1-Score: {f1_score(y, y_pred)}")
+print(f"Accuracy: {accuracy(y, y_pred):.4f}")
+print(f"Precision: {precision(y, y_pred):.4f}")
+print(f"Recall: {recall(y, y_pred):.4f}")
+print(f"F1-Score: {f1_score(y, y_pred):.4f}")
 
 feature_names = ['Intercept'] + list(df.drop('target', axis=1).columns)
 coefficients = weights
@@ -160,18 +162,40 @@ def plot_roc_curve(X, y, weights):
     plt.show()
 
 plot_roc_curve(X, y, weights)
-def predict_user_input():
-    print("\nPlease enter values for the following features:")
-    user_data = []
-    for feature in df.drop('target', axis=1).columns:
-        value = float(input(f"{feature}: "))
-        user_data.append(value)
 
+def predict_user_input():
+    print("\n======================")
+    print("  User Input Prediction")
+    print("======================\n")
+
+    user_data = []
+    feature_names = df.drop('target', axis=1).columns
+
+    # Loop through each feature and collect user input
+    for feature in feature_names:
+        while True:
+            try:
+                value = float(input(f"Enter value for {feature}  "))
+                user_data.append(value)
+                break  # Exit the loop if input is valid
+            except ValueError:
+                print("Invalid input! Please enter a numeric value: ")
+
+    # Normalize the user input
     user_data = (np.array(user_data) - np.mean(X[:, 1:], axis=0)) / np.std(X[:, 1:], axis=0)
     user_data = np.insert(user_data, 0, 1)  # Add intercept term
 
+    # Make prediction
     prediction = predict(user_data.reshape(1, -1), weights)
-    print("Predicted target:", int(prediction[0]))
+
+    # Display the result
+    print("\n======================")
+    print("       Prediction")
+    print("======================")
+    print(f"Predicted target: {int(prediction[0])}")
+    print(f"NOTE: THIS PREDICTION HAS AN ACCURACY OF {accuracy(y, y_pred) * 100:.2f}%")
+    print("======================\n")
+
 if __name__ == "__main__":
     predict_user_input()
-print(f"NOTE: THIS PREDICTION HAS AN ACCURACY OF {accuracy(y, y_pred)*100}%")
+
