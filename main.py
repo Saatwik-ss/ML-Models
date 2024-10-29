@@ -171,24 +171,19 @@ def predict_user_input():
     user_data = []
     feature_names = df.drop('target', axis=1).columns
 
-    # Loop through each feature and collect user input
     for feature in feature_names:
         while True:
             try:
                 value = float(input(f"Enter value for {feature}  "))
                 user_data.append(value)
-                break  # Exit the loop if input is valid
+                break 
             except ValueError:
                 print("Invalid input! Please enter a numeric value: ")
-
-    # Normalize the user input
     user_data = (np.array(user_data) - np.mean(X[:, 1:], axis=0)) / np.std(X[:, 1:], axis=0)
-    user_data = np.insert(user_data, 0, 1)  # Add intercept term
+    user_data = np.insert(user_data, 0, 1)  
 
-    # Make prediction
     prediction = predict(user_data.reshape(1, -1), weights)
 
-    # Display the result
     print("\n======================")
     print("       Prediction")
     print("======================")
