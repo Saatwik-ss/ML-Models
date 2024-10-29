@@ -1,0 +1,3 @@
+pandas==1.5.3         # Data loading and manipulation
+numpy==1.23.5         # Numerical operations
+matplotlib==3.6.2     # Plotting and visualization
