@@ -163,6 +163,23 @@ def plot_roc_curve(X, y, weights):
 
 plot_roc_curve(X, y, weights)
 
+def plot_weighted_contributions(X, y, weights):
+    z = np.dot(X, weights) 
+    sorted_indices = np.argsort(z)  
+    z_sorted = z[sorted_indices]
+    y_sorted = y[sorted_indices]
+    sigmoid_curve = sigmoid(z_sorted)
+    plt.figure(figsize=(12, 6))
+    plt.scatter(z, y, label='Data Points', color='blue', alpha=0.7)
+    plt.plot(z_sorted, sigmoid_curve, label='Sigmoid Curve', color='red', linewidth=2)
+    plt.axhline(y.mean(), color='green', linestyle='--', label='Mean Target')
+    plt.title("Log-Odds (Sum of Contributions) vs Target")
+    plt.xlabel("Log-Odds (X * weights)")
+    plt.ylabel("Target")
+    plt.legend()
+    plt.show()
+ plot_weighted_contributions(X, y, weights)
+
 def predict_user_input():
     print("\n======================")
     print("  User Input Prediction")
