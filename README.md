@@ -27,8 +27,12 @@ Confusion Matrix Visualization: Displays a matrix to show counts of true positiv
 Receiver Operating Characteristic (ROC) Curve: Plots the ROC curve to assess the model's true positive and false positive rates across thresholds.
 7. Sigmoid Curve
 Creates and shows the Sigmoid graph the algorithm used to analyse and predict data with target as Y axis and Z=𝑋*Weights as X axis.
+
 Here:
+
 𝑋 is the feature matrix (including the intercept term).
+
 Weights are the coefficients learned during training.   
-9. Prediction:
+
+10. Prediction:
 The user can input data in the same format as of the dataset the model is trained with and a target prediction would be made and the accuracy, precison, recall, f1_score and roc curve of the prediction will help the user in understanding the reliability of the prediction
