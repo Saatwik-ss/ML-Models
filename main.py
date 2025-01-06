@@ -1,9 +1,11 @@
+#importing libraries
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
 import os
 
+#Loading dataset
 def load_dataset():
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
